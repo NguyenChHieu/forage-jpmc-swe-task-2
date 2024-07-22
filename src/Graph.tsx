@@ -14,7 +14,7 @@ interface IProps {
  * Perspective library adds load to HTMLElement prototype.
  * This interface acts as a wrapper for Typescript compiler.
  */
-interface PerspectiveViewerElement {
+interface PerspectiveViewerElement extends HTMLElement{
   load: (table: Table) => void,
 }
 
@@ -32,7 +32,7 @@ class Graph extends Component<IProps, {}> {
 
   componentDidMount() {
     // Get element to attach the table from the DOM.
-    const elem: PerspectiveViewerElement = document.getElementsByTagName('perspective-viewer')[0] as unknown as PerspectiveViewerElement;
+    const elem= document.getElementsByTagName('perspective-viewer')[0] as unknown as PerspectiveViewerElement;
 
     const schema = {
       stock: 'string',
@@ -46,6 +46,15 @@ class Graph extends Component<IProps, {}> {
     }
     if (this.table) {
       // Load the `table` in the `<perspective-viewer>` DOM reference.
+      elem.setAttribute('view', 'y_line'); // View line graph
+      elem.setAttribute('column-pivots', '["stock"]'); // Distinguish ABC stocks /DEF
+      elem.setAttribute('row-pivots','["timestamp"]'); // map each datapoint base on timestamp
+      elem.setAttribute('columns', '["top_ask_price"]'); // focus on top_ask_price only
+      elem.setAttribute('aggregates',
+          `{"stock":"distinct count",
+          "top_ask_price":"avg",
+          "top_bid_price":avg",
+          "timestamp":"distinct count"}`); // handle the duplicated data and consolidate it into a single data point
 
       // Add more Perspective configurations here.
       elem.load(this.table);
